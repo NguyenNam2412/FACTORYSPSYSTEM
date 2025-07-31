@@ -6,17 +6,19 @@ require("dotenv").config({
 });
 
 const SECRET_KEY = process.env.SECRET_KEY; // change to secret key (save to env)
-const { getDB } = require("../db");
-const loggers = require("../utils/logger");
+const { getDB } = require("../../db");
+const loggers = require("../../utils/logger");
 
 // emp login
-router.post("/employee", (req, res) => {
+router.get("/employee", (req, res) => {
   const { emp_id } = req.body;
   if (!emp_id) return res.status(400).json({ error: "can't find emp id" });
   const db = getDB();
   db.get(
-    `SELECT EMP_ID, ROLE_NAME FROM EMPLOYEES WHERE EMP_ID = ? AND IS_ACTIVE = 1`,
-    [emp_id, role_name],
+    `SELECT E.EMP_ID, R.ROLE_NAME FROM EMPLOYEES E 
+      JOIN EMPLOYEE_ROLES R ON E.EMP_ID = R.EMP_ID 
+      WHERE E.EMP_ID = ? AND E.IS_ACTIVE = 1`,
+    [emp_id],
     (err, row) => {
       if (err) {
         console.error(err);
@@ -32,7 +34,7 @@ router.post("/employee", (req, res) => {
       }
 
       try {
-        const token = jwt.sign({ emp_id, role: role_name }, SECRET_KEY);
+        const token = jwt.sign({ emp_id, role: row.ROLE_NAME }, SECRET_KEY);
         loggers.empLog.info(`emp ${emp_id} login success`);
         return res.json({ success: true, token });
       } catch (signError) {
@@ -43,7 +45,7 @@ router.post("/employee", (req, res) => {
   );
 });
 
-router.post("/admin", (req, res) => {
+router.get("/admin", (req, res) => {
   const { username, password } = req.body;
   const db = getDB();
   db.get(

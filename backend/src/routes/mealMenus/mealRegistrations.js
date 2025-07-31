@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db").getDB();
+const db = require("../../db").getDB();
 
 // Get all registrations (optionally filter by EMP_ID or REG_DATE)
 router.get("/", (req, res) => {

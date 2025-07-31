@@ -19,13 +19,13 @@ app.use(bodyParser.json());
 // generates DB
 initDB();
 
-const { authRouter } = require("./src/routes/auth");
-const mealMenusRouter = require("./routes/mealMenus");
-const mealRegistrationsRouter = require("./routes/mealRegistrations");
+const { authRouter } = require("./src/routes/auth/auth");
+const mealMenusRouter = require("./src/routes/mealMenus/mealMenus");
+const mealRegistrationsRouter = require("./src/routes/mealMenus/mealRegistrations");
 
 app.use("/login", authRouter);
-app.use("/api/meal-menus", mealMenusRouter);
-app.use("/api/meal-registrations", mealRegistrationsRouter);
+app.use("/meal-menus", mealMenusRouter);
+app.use("/meal-registrations", mealRegistrationsRouter);
 
 app.use((res, next) => {
   res.setTimeout(15000, () => {

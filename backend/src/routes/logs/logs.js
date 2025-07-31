@@ -2,15 +2,16 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const router = express.Router();
-const { verifyToken } = require("../middleware/authMiddleware"); // jwt
+const { verifyToken } = require("../../middleware/authMiddleware"); // jwt
+const logger = require("../../utils/logger");
 
-router.get("../utils/logs", verifyToken, (req, res) => {
+router.get(logger, verifyToken, (req, res) => {
   // admin only
   if (req.user?.role !== "admin") {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  const logPath = path.join(__dirname, "../utils/logs/query.log");
+  const logPath = path.join(__dirname, "../../utils/logs/query.log");
 
   fs.readFile(logPath, "utf8", (err, data) => {
     if (err) {
