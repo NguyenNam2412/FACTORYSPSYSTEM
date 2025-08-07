@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const { getDB } = require("../../db");
 
-const multer = require("multer");
-
 // Get all meal menus
 router.get("/all", (req, res) => {
   const db = getDB();

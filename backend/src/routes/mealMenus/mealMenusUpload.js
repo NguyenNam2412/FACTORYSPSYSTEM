@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const XLSX = require("xlsx");
+const dayjs = require("dayjs");
 
 const { hasPermissionByAction } = require("../../middleware/permissionCheck");
 const parseWeekAndMonth = require("../../helpers/fileName/mealMenusFileName");
@@ -11,7 +12,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 // Permission IDs
 const UPLOAD_MEAL_MENU = "UPLOAD_MEAL_MENU";
 
-// Helper: format date to YYYY-MM-DD
+// Helper: format date to DD/MM/YYYY
 const formatDate = require("../../utils/dateTime/formatDate");
 
 // Helper: get period range
@@ -21,7 +22,7 @@ const getPeriod = require("../../helpers/mealMenus/getPeriod");
 async function checkPermission(user, res) {
   const allowed = await hasPermissionByAction(user, UPLOAD_MEAL_MENU);
   if (!allowed) {
-    res.status(403).json({ error: "Forbidden: insufficient permissions" });
+    res.status(403).json({ error: "Forbidden: No permissions" });
     return false;
   }
   return true;
@@ -157,10 +158,13 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       )
     );
 
+    const start = dayjs(from_date_str, "DD/MM/YYYY").startOf("day").valueOf();
+    const end = dayjs(to_date_str, "DD/MM/YYYY").startOf("day").valueOf();
+
     res.json({
       success: true,
       file: fileName,
-      period: { from: from_date_str, to: to_date_str },
+      period: { from: start, to: end },
       menus: menuData,
     });
   } catch (err) {
@@ -174,7 +178,6 @@ router.get("/file/:file_id/download", async (req, res) => {
   const user = req.user;
   if (!(await checkPermission(user, res))) return;
   const file_id = req.params.file_id;
-  console.log("Downloading file with ID:", file_id);
   const db = getDB();
   db.get(
     "SELECT * FROM MEAL_MENU_FILES WHERE FILE_ID = ?",
@@ -182,7 +185,6 @@ router.get("/file/:file_id/download", async (req, res) => {
     async (err, file) => {
       if (err || !file)
         return res.status(404).json({ error: "File not found" });
-      console.log("Downloading file:", file);
       // get menus data by file_id
       db.all(
         "SELECT * FROM MEAL_MENUS WHERE FILE_ID = ? ORDER BY MENU_DATE, DISH_TYPE",
@@ -192,7 +194,6 @@ router.get("/file/:file_id/download", async (req, res) => {
 
           // build excel file content
           // 1. get list of days and dish types
-          console.log("Preparing data for Excel file...", menus);
           const days = [];
           const dishTypes = [];
           const dayMap = {};
@@ -211,7 +212,6 @@ router.get("/file/:file_id/download", async (req, res) => {
             header.push(`Thứ ${idx + 2} (en)`);
           });
 
-          console.log("Header prepared for Excel:", header);
           const data = [header];
 
           // rows 2...: STT | Dish Type | ... | tên món vi | dish name en | ...
@@ -225,8 +225,6 @@ router.get("/file/:file_id/download", async (req, res) => {
             data.push(row);
           });
 
-          console.log("Data prepared for Excel:", data);
-
           // 3. create file Excel
           const ws = XLSX.utils.aoa_to_sheet(data);
           const wb = XLSX.utils.book_new();
@@ -234,7 +232,7 @@ router.get("/file/:file_id/download", async (req, res) => {
           const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
           res.setHeader(
             "Content-Disposition",
-            `attachment; filename="${file.FILE_NAME}"`
+            `attachment; filename*=UTF-8''${encodeURIComponent(file.FILE_NAME)}`
           );
           res.setHeader(
             "Content-Type",
@@ -251,7 +249,7 @@ router.get("/file/:file_id/download", async (req, res) => {
 router.delete("/file/:file_id", async (req, res) => {
   const user = req.user;
   if (!(await checkPermission(user, res))) return;
-  const file_id = req.params.file_id;
+  const file_id = Number(req.params.file_id);
   const db = getDB();
   db.get(
     "SELECT * FROM MEAL_MENU_FILES WHERE FILE_ID = ?",
