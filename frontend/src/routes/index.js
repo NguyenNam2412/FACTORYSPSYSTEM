@@ -7,10 +7,14 @@ import HomePage from "../pages/Home/HomePage";
 import NotFound from "../pages/Home/NotFound";
 import AdminSide from "../pages/Admin/AdminSide";
 
+//home side
+import ListFileMealMenus from "../pages/mealMenus/ListFileMealMenus";
+
 const AppRouter = () => (
   <ErrorBoundary fallback={<div>Something went wrong</div>}>
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      {/* home side */}
       <Route
         path="/"
         element={
@@ -19,7 +23,9 @@ const AppRouter = () => (
           </ProtectedRoute>
         }
       />
-      <Route path="/admin" element={<AdminSide />} />
+      <Route path="/meal-menus" element={<ListFileMealMenus />} />
+      {/* home side */}
+      <Route path="/admin-side" element={<AdminSide />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </ErrorBoundary>

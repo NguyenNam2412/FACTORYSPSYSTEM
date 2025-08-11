@@ -1,0 +1,51 @@
+const GET_LIST_MEAL_MENUS_REQUEST = "mealMenus/getListRequest";
+const GET_LIST_MEAL_MENUS_SUCCESS = "mealMenus/getListSuccess";
+const GET_LIST_MEAL_MENUS_FAILURE = "mealMenus/getListFailure";
+
+const GET_LIST_FILES_MEAL_MENUS_REQUEST = "mealMenus/getFilesRequest";
+const GET_LIST_FILES_MEAL_MENUS_SUCCESS = "mealMenus/getFilesSuccess";
+const GET_LIST_FILES_MEAL_MENUS_FAILURE = "mealMenus/getFilesFailure";
+
+const UPLOAD_MEAL_MENUS_REQUEST = "mealMenus/uploadRequest";
+const UPLOAD_MEAL_MENUS_SUCCESS = "mealMenus/uploadSuccess";
+const UPLOAD_MEAL_MENUS_FAILURE = "mealMenus/uploadFailure";
+
+const DOWNLOAD_MEAL_MENUS_REQUEST = "mealMenus/downloadRequest";
+const DOWNLOAD_MEAL_MENUS_SUCCESS = "mealMenus/downloadSuccess";
+const DOWNLOAD_MEAL_MENUS_FAILURE = "mealMenus/downloadFailure";
+
+const DELETE_MEAL_MENUS_REQUEST = "mealMenus/deleteRequest";
+const DELETE_MEAL_MENUS_SUCCESS = "mealMenus/deleteSuccess";
+const DELETE_MEAL_MENUS_FAILURE = "mealMenus/deleteFailure";
+
+const DELETE_MULTI_MEAL_MENUS_REQUEST = "mealMenus/deleteMultiRequest";
+const DELETE_MULTI_MEAL_MENUS_SUCCESS = "mealMenus/deleteMultiSuccess";
+const DELETE_MULTI_MEAL_MENUS_FAILURE = "mealMenus/deleteMultiFailure";
+
+const mealMenusConstants = {
+  GET_LIST_MEAL_MENUS_REQUEST,
+  GET_LIST_MEAL_MENUS_SUCCESS,
+  GET_LIST_MEAL_MENUS_FAILURE,
+
+  GET_LIST_FILES_MEAL_MENUS_REQUEST,
+  GET_LIST_FILES_MEAL_MENUS_SUCCESS,
+  GET_LIST_FILES_MEAL_MENUS_FAILURE,
+
+  UPLOAD_MEAL_MENUS_REQUEST,
+  UPLOAD_MEAL_MENUS_SUCCESS,
+  UPLOAD_MEAL_MENUS_FAILURE,
+
+  DOWNLOAD_MEAL_MENUS_REQUEST,
+  DOWNLOAD_MEAL_MENUS_SUCCESS,
+  DOWNLOAD_MEAL_MENUS_FAILURE,
+
+  DELETE_MEAL_MENUS_REQUEST,
+  DELETE_MEAL_MENUS_SUCCESS,
+  DELETE_MEAL_MENUS_FAILURE,
+
+  DELETE_MULTI_MEAL_MENUS_REQUEST,
+  DELETE_MULTI_MEAL_MENUS_SUCCESS,
+  DELETE_MULTI_MEAL_MENUS_FAILURE,
+};
+
+export default mealMenusConstants;

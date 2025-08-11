@@ -64,7 +64,8 @@ function LoginPage(props) {
   useEffect(() => {
     if (loginSession?.success) {
       localStorage.setItem("token", loginSession.token);
-      navigate("/admin");
+      localStorage.setItem("username", loginSession.username);
+      navigate("/admin-side");
     }
   }, [loginSession, navigate]);
 

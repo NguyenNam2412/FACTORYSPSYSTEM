@@ -62,6 +62,12 @@ function LoginPage(props) {
   useEffect(() => {
     if (loginSession?.success) {
       localStorage.setItem("token", loginSession.token);
+      const empInfo = {
+        empId: loginSession.empId,
+        empName: loginSession.empName,
+        role: loginSession.role,
+      };
+      localStorage.setItem("empInfo", JSON.stringify(empInfo));
       navigate("/");
     }
   }, [loginSession, navigate]);

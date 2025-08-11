@@ -1,13 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function AdminSide() {
+function Header({ empName, empId }) {
   const navigate = useNavigate();
-  const username = JSON.parse(localStorage.getItem("username"));
+  const empInfo = JSON.parse(localStorage.getItem("empInfo"));
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("username");
+    localStorage.removeItem("empInfo");
     navigate("/login");
   };
 
@@ -22,7 +22,9 @@ function AdminSide() {
         color: "#fff",
       }}
     >
-      <div>Hello {username}</div>
+      <div>
+        {empInfo.empName} ({empInfo.empId})
+      </div>
       <button
         style={{
           backgroundColor: "#fff",
@@ -41,4 +43,4 @@ function AdminSide() {
   );
 }
 
-export default AdminSide;
+export default Header;
