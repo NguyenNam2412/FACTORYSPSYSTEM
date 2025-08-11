@@ -1,12 +1,5 @@
 import axios from "axios";
 
-const queryApi = axios.create({
-  baseURL: "http://localhost:5000/query",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
 const authApi = axios.create({
   baseURL: "http://localhost:5000/Login",
   headers: {
@@ -15,7 +8,7 @@ const authApi = axios.create({
 });
 
 // Gắn token
-queryApi.interceptors.request.use((config) => {
+authApi.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -24,7 +17,7 @@ queryApi.interceptors.request.use((config) => {
 });
 
 // Xử lý lỗi token hết hạn
-queryApi.interceptors.response.use(
+authApi.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
@@ -40,12 +33,8 @@ queryApi.interceptors.response.use(
   }
 );
 
-const fetchTableData = (table, params) => {
-  return queryApi.post(`/${table}`, params);
-};
-
 const loginRequest = (credentials) => {
   return authApi.post("/login", credentials);
 };
 
-export { fetchTableData, loginRequest };
+export { loginRequest };
