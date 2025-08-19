@@ -1,22 +1,21 @@
 const selectAuth = (state) => {
-  return state.auth
+  return state.auth;
 };
 const selectAuthSession = (state) => {
-  return state.auth.session
+  return state.auth.session;
 };
 const selectAuthLoading = (state) => {
-  return state.auth.loading
+  return state.auth.loading;
 };
 const selectAuthError = (state) => {
-  return state.auth.error
+  return state.auth.error;
 };
 
-const authLogin = {
+const authSelectors = {
   selectAuth,
   selectAuthSession,
   selectAuthLoading,
   selectAuthError,
-}
+};
 
-export default authLogin;
-
+export default authSelectors;

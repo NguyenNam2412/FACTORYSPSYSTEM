@@ -1,6 +1,6 @@
 import { createAction } from "@reduxjs/toolkit";
 
-import mealMenusConstants from "../../constants/mealMenusConstants";
+import mealMenusConstants from "@store/constants/mealMenusConstants";
 
 const getListMealMenusRequest = createAction(
   mealMenusConstants.GET_LIST_MEAL_MENUS_REQUEST

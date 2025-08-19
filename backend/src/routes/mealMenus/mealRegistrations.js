@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const { getDB } = require("../../db");
-const { hasPermissionByAction } = require("../../middleware/permissionCheck");
+const { getDB } = require("@db");
+const { hasPermissionByAction } = require("@middleware/permissionCheck");
 
 const XLSX = require("xlsx");
 

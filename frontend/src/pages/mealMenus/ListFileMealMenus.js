@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 
-import mealMenusConstants from "../../store/constants/mealMenusConstants";
-import mealMenusSelectors from "../../store/selectors/mealMenusSelectors";
+import mealMenusConstants from "@store/constants/mealMenusConstants";
+import mealMenusSelectors from "@store/selectors/mealMenusSelectors";
 
 function ListFileMealMenus() {
   const dispatch = useDispatch();
@@ -27,33 +27,37 @@ function ListFileMealMenus() {
     if (file) {
       dispatch({
         type: mealMenusConstants.UPLOAD_MEAL_MENUS_REQUEST,
-        payload: { file },
+        payload: file,
       });
     }
+
     event.target.value = "";
   };
+
+  const isUploading = uploadStatus === "loading";
 
   return (
     <div style={{ width: "300px", margin: "auto" }}>
       {/* upload button */}
       <div
         onClick={() => {
-          if (uploadStatus !== "loading") fileInputRef.current.click();
+          if (!isUploading) {
+            fileInputRef.current.click();
+          }
         }}
         style={{
           border: "1px dashed #ccc",
           padding: "10px",
           marginBottom: "5px",
           textAlign: "center",
-          cursor: uploadStatus === "loading" ? "not-allowed" : "pointer",
-          backgroundColor:
-            uploadStatus === "loading" ? "#f5f5f5" : "transparent",
-          color: uploadStatus === "loading" ? "#999" : "#000",
+          cursor: isUploading ? "not-allowed" : "pointer",
+          backgroundColor: isUploading ? "#f5f5f5" : "transparent",
+          color: isUploading ? "#999" : "#000",
         }}
       >
-        {uploadStatus === "loading"
+        {isUploading
           ? "Đang upload..."
-          : uploadStatus === "failure"
+          : isUploading === "failure"
           ? "Upload thất bại!"
           : "+ Upload"}
       </div>
@@ -69,7 +73,7 @@ function ListFileMealMenus() {
       {/* list file */}
       {listFileMealMenus.map((file) => (
         <div
-          key={file.id}
+          key={file.fileId}
           style={{
             border: "1px solid #ccc",
             padding: "10px",

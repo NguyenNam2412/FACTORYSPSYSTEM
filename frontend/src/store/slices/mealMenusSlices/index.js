@@ -15,40 +15,40 @@ const mealMenusSlice = createSlice({
   initialState,
   reducers: {
     // ===== GET LIST MEAL MENUS =====
-    getListMealMenusRequest: (state) => {
+    getListRequest: (state) => {
       state.loading = true;
       state.error = null;
     },
-    getListMealMenusSuccess: (state, action) => {
+    getListSuccess: (state, action) => {
       state.loading = false;
       state.listMealMenus = action.payload;
     },
-    getListMealMenusFailure: (state, action) => {
+    getListFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },
 
     // ===== GET LIST FILE MEAL =====
-    getListFilesMealMenusRequest: (state) => {
+    getFilesRequest: (state) => {
       state.loading = true;
       state.error = null;
     },
-    getListFilesMealMenusSuccess: (state, action) => {
+    getFilesSuccess: (state, action) => {
       state.loading = false;
       state.listFilesMealMenus = action.payload;
     },
-    getListFilesMealMenusFailure: (state, action) => {
+    getFilesFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },
 
     // ===== UPLOAD =====
-    mealMenusUploadRequest: (state) => {
+    uploadRequest: (state) => {
       state.loading = true;
       state.uploadStatus = "loading";
       state.error = null;
     },
-    mealMenusUploadSuccess: (state, action) => {
+    uploadSuccess: (state, action) => {
       state.loading = false;
       state.uploadStatus = "success";
       if (action.payload) {
@@ -58,53 +58,53 @@ const mealMenusSlice = createSlice({
         ];
       }
     },
-    mealMenusUploadFailure: (state, action) => {
+    uploadFailure: (state, action) => {
       state.loading = false;
       state.uploadStatus = "failure";
       state.error = action.payload;
     },
 
     // ===== DOWNLOAD =====
-    mealMenusDownloadRequest: (state) => {
+    downloadRequest: (state) => {
       state.loading = true;
       state.downloadFile = null;
     },
-    mealMenusDownloadSuccess: (state, action) => {
+    downloadSuccess: (state, action) => {
       state.loading = false;
       state.downloadFile = action.payload; // blob file
     },
-    mealMenusDownloadFailure: (state, action) => {
+    downloadFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },
 
     // ===== DELETE SINGLE =====
-    mealMenusDeleteRequest: (state) => {
+    deleteRequest: (state) => {
       state.loading = true;
     },
-    mealMenusDeleteSuccess: (state, action) => {
+    deleteSuccess: (state, action) => {
       state.loading = false;
       state.listFilesMealMenus = state.listFilesMealMenus.filter(
         (file) => file.id !== action.payload
       );
     },
-    mealMenusDeleteFailure: (state, action) => {
+    deleteFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },
 
     // ===== DELETE MULTIPLE =====
-    mealMenusDeleteMultipleRequest: (state) => {
+    deleteMultiRequest: (state) => {
       state.loading = true;
     },
-    mealMenusDeleteMultipleSuccess: (state, action) => {
+    deleteMultiSuccess: (state, action) => {
       state.loading = false;
       const idsToDelete = action.payload;
       state.listFilesMealMenus = state.listFilesMealMenus.filter(
         (file) => !idsToDelete.includes(file.id)
       );
     },
-    mealMenusDeleteMultipleFailure: (state, action) => {
+    deleteMultiFailure: (state, action) => {
       state.loading = false;
       state.error = action.payload;
     },

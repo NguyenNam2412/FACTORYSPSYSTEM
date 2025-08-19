@@ -7,27 +7,49 @@ process.on("unhandledRejection", (reason, promise) => {
 });
 
 const express = require("express");
+const app = express();
 const bodyParser = require("body-parser");
+const cors = require("cors");
 require("dotenv").config();
 
-const { initDB } = require("./src/db");
-const logger = require("./src/utils/logger");
+const { initDB } = require("@db");
+const loggers = require("@utils/logger");
 
-const app = express();
 app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: "http://localhost:3000", // ['http://localhost:3000', 'https://domain.com']
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // generates DB
 initDB();
 
-const { authRouter } = require("./src/routes/auth/auth");
-const mealMenusRouter = require("./src/routes/mealMenus/mealMenus");
-const mealRegistrationsRouter = require("./src/routes/mealMenus/mealRegistrations");
+const { verifyToken } = require("@middleware/authMiddleware");
+
+const { authRouter } = require("@routes/auth");
+const mealMenusRouter = require("@routes/mealMenus/mealMenus");
+const fileMealMenusRouter = require("@routes/mealMenus/mealMenusUpload");
+const mealRegistrationsRouter = require("@routes/mealMenus/mealRegistrations");
+
+const publicPaths = ["/login"];
+
+app.use((req, res, next) => {
+  // pass verifyToken with router start with /login/
+  if (publicPaths.some((path) => req.path.startsWith(path))) {
+    return next();
+  }
+  verifyToken(req, res, next);
+});
 
 app.use("/login", authRouter);
 app.use("/meal-menus", mealMenusRouter);
+app.use("/meal-menus", fileMealMenusRouter);
 app.use("/meal-registrations", mealRegistrationsRouter);
 
-app.use((res, next) => {
+app.use((req, res, next) => {
   res.setTimeout(15000, () => {
     console.warn("Request timed out");
     res.status(503).json({ error: "Request timeout" });
@@ -35,13 +57,13 @@ app.use((res, next) => {
   next();
 });
 
-app.use((req, next) => {
-  logger.info(`${req.method} ${req.originalUrl}`);
+app.use((req, res, next) => {
+  loggers.empLog.info(`${req.method} ${req.originalUrl}`);
   next();
 });
 
-app.use((err, res) => {
-  logger.error("Uncaught error:", err.stack);
+app.use((err, req, res, next) => {
+  loggers.errorLog.error("Uncaught error:", err.stack);
   res.status(500).json({ success: false, error: "Internal Server Error" });
 });
 

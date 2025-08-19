@@ -2,8 +2,8 @@ jest.mock("../db", () => require("./__mocks__/testDB.js"));
 const request = require("supertest");
 const express = require("express");
 
-const { authRouter } = require("../routes/auth/auth");
-const { getDB, initDB } = require("../db");
+const { authRouter } = require("@routes/auth");
+const { getDB, initDB } = require("@db");
 
 const app = express();
 app.use(express.json());

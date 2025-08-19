@@ -3,8 +3,8 @@ const request = require("supertest");
 const express = require("express");
 const XLSX = require("xlsx");
 
-const mealRegistrationsRouter = require("../routes/mealMenus/mealRegistrations");
-const { getDB, initDB } = require("../db/index.js");
+const mealRegistrationsRouter = require("@routes/mealMenus/mealRegistrations");
+const { getDB, initDB } = require("@db");
 
 const app = express();
 app.use(express.json());

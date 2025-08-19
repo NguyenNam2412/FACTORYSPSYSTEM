@@ -2,8 +2,8 @@ jest.mock("../db", () => require("./__mocks__/testDB.js"));
 const request = require("supertest");
 const express = require("express");
 
-const mealMenusRouter = require("../routes/mealMenus/mealMenus");
-const { getDB, initDB } = require("../db");
+const mealMenusRouter = require("@routes/mealMenus/mealMenus");
+const { getDB, initDB } = require("@db");
 
 const app = express();
 app.use(express.json());
@@ -29,13 +29,13 @@ describe("API /meal-menus/", () => {
       expect(Array.isArray(res.body.menus)).toBe(true);
     });
 
-    test("should return meal menus by date", async () => {
+    test("should return list meal menus files", async () => {
       const db = getDB();
       db.get.mockImplementation((query, params, cb) => {
         cb(null, []);
       });
 
-      const res = await request(app).get("/meal-menus/01-01-2024");
+      const res = await request(app).get("/meal-menus/listFilesMealMenus");
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);

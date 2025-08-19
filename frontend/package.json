@@ -9,8 +9,11 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.9.0",
+    "customize-cra": "^1.0.0",
+    "eslint-plugin-import": "^2.32.0",
     "immutable": "^5.1.2",
     "react": "^19.1.0",
+    "react-app-rewired": "^2.2.1",
     "react-dom": "^19.1.0",
     "react-error-boundary": "^6.0.0",
     "react-redux": "^9.2.0",
@@ -21,10 +24,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
   },
   "eslintConfig": {
     "extends": [
@@ -45,6 +48,11 @@
     ]
   },
   "devDependencies": {
-    "@redux-devtools/core": "^4.1.1"
+    "@eslint/js": "^9.33.0",
+    "@redux-devtools/core": "^4.1.1",
+    "eslint": "^8.57.1",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.3.0"
   }
 }

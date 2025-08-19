@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getDB } = require("../../db");
+const { getDB } = require("@db");
 
 // Get all meal menus
 router.get("/all", (req, res) => {
@@ -16,18 +16,15 @@ router.get("/all", (req, res) => {
   );
 });
 
-// Get menu by date
-router.get("/:date", (req, res) => {
+router.get("/listFilesMealMenus", (req, res) => {
   const db = getDB();
-  db.get(
-    "SELECT * FROM MEAL_MENUS WHERE MENU_DATE = ?",
-    [req.params.date],
+  db.all(
+    "SELECT FILE_ID AS fileId, FILE_NAME AS fileName, UPLOADED_AT AS uploadedAt FROM MEAL_MENU_FILES ORDER BY UPLOADED_AT DESC",
+    [],
     (err, rows) => {
       if (err)
         return res.status(500).json({ success: false, error: err.message });
-      if (!rows || Object.keys(rows).length === 0)
-        return res.json({ success: true, menus: [] });
-      return res.json({ success: true, menus: rows });
+      return res.json({ success: true, listFile: rows });
     }
   );
 });

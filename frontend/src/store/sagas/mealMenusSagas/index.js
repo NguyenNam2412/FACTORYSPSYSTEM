@@ -1,5 +1,5 @@
 // src/store/mealMenus/mealMenusSaga.js
-import { call, put, takeLatest } from "redux-saga/effects";
+import { call, put, select, takeLatest } from "redux-saga/effects";
 import {
   getListMealMenus,
   getListFilesMealMenus,
@@ -7,11 +7,12 @@ import {
   mealMenusDownload,
   mealMenusDelete,
   mealMenusDeleteMultiple,
-} from "../../../api/mealMenusApi";
+} from "@api/mealMenusApi";
 
-import mealMenusConstants from "../../constants/mealMenusConstants";
+import mealMenusConstants from "@store/constants/mealMenusConstants";
+import { parseWeekAndMonth } from "@helpers/fileName/mealMenusFileName";
 
-// ===== GET ALL =====
+// ===== GET MEAL =====
 function* fetchListMealMenus(action) {
   try {
     const res = yield call(getListMealMenus, action.payload);
@@ -27,13 +28,13 @@ function* fetchListMealMenus(action) {
   }
 }
 
-// ===== GET BY DATE =====
-function* fetchMealMenusByDate(action) {
+// ===== GET LIST FILE =====
+function* fetchListFileMealMenus(action) {
   try {
     const res = yield call(getListFilesMealMenus, action.payload);
     yield put({
       type: mealMenusConstants.GET_LIST_FILES_MEAL_MENUS_SUCCESS,
-      payload: res.data,
+      payload: res.data?.listFile,
     });
   } catch (err) {
     yield put({
@@ -46,8 +47,30 @@ function* fetchMealMenusByDate(action) {
 // ===== UPLOAD =====
 function* uploadMealMenus(action) {
   try {
-    yield call(mealMenusUpload, action.payload);
-    yield put({ type: mealMenusConstants.UPLOAD_MEAL_MENUS_SUCCESS });
+    const file = action.payload;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const compare = file?.name.match(/tuần.*(?=\.xlsx$)/i)?.[0].trim();
+    const { from, to, week } = parseWeekAndMonth(file.name);
+
+    const listFile = yield select((state) => {
+      return state.mealMenus.listFilesMealMenus;
+    });
+
+    const existFile = listFile.find(
+      (f) =>
+        f.fileName.includes(compare) ||
+        JSON.stringify(parseWeekAndMonth(f.fileName)) ===
+          JSON.stringify({ from, to, week })
+    );
+
+    const res = yield call(mealMenusUpload, formData);
+
+    yield put({
+      type: mealMenusConstants.UPLOAD_MEAL_MENUS_SUCCESS,
+      payload: existFile ? null : res.data,
+    });
   } catch (err) {
     yield put({
       type: mealMenusConstants.UPLOAD_MEAL_MENUS_FAILURE,
@@ -104,8 +127,8 @@ export default function* mealMenusSaga() {
     fetchListMealMenus
   );
   yield takeLatest(
-    mealMenusConstants.GET_LIST_FILES_MEAL_MENUS_FAILURE,
-    fetchMealMenusByDate
+    mealMenusConstants.GET_LIST_FILES_MEAL_MENUS_REQUEST,
+    fetchListFileMealMenus
   );
   yield takeLatest(
     mealMenusConstants.UPLOAD_MEAL_MENUS_REQUEST,

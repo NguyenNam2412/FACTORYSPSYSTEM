@@ -1,6 +1,6 @@
-const formatDate = require("@utils/dateTime/formatDate");
+import { formatDate } from "@utils/dateTime/formatDate";
 
-function parseWeekAndMonth(filename) {
+export function parseWeekAndMonth(filename) {
   const match = filename.match(/(\d+)\.T(\d+)/i);
   if (!match) {
     console.log(
@@ -47,5 +47,3 @@ function parseWeekAndMonth(filename) {
     week: week,
   };
 }
-
-module.exports = parseWeekAndMonth;

@@ -1,4 +1,4 @@
-const db = require("../db").getDB();
+const db = require("@db").getDB();
 require("dotenv").config({
   path: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
 });
@@ -9,75 +9,74 @@ require("dotenv").config({
  * @param {string} action - action
  * @returns {Promise<boolean>}
  */
-async function hasPermissionByAction(empId, action) {
+
+async function hasPermissionByAction(empId, permissionId) {
   if (process.env.NODE_ENV === "test") return true;
+
+  // 1. get user departmentId
   const emp = await new Promise((resolve, reject) => {
     db.get(
       `SELECT DEPARTMENT_ID FROM EMPLOYEES WHERE EMP_ID = ?`,
       [empId],
-      (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      }
+      (err, row) => (err ? reject(err) : resolve(row))
     );
   });
   if (!emp) return false;
   const departmentId = emp.DEPARTMENT_ID;
 
-  // 1. Get permissionId from action
+  // 2. check permission exit
   const permission = await new Promise((resolve, reject) => {
     db.get(
       `SELECT PERMISSION_ID FROM PERMISSIONS WHERE PERMISSION_ID = ?`,
-      [action],
-      (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      }
+      [permissionId],
+      (err, row) => (err ? reject(err) : resolve(row))
     );
   });
   if (!permission) return false;
-  const permissionId = permission.PERMISSION_ID;
 
-  // 2. check permission override
+  // 3. Check override
   const override = await new Promise((resolve, reject) => {
     db.get(
-      `SELECT * FROM USER_PERMISSION_OVERRIDES 
-       WHERE EMP_ID = ? AND PERMISSION_ID = ? 
+      `SELECT * FROM USER_PERMISSION_OVERRIDES
+     WHERE EMP_ID = ?
+       AND (PERMISSION_ID = ? OR PERMISSION_ID IS NULL)
        AND (DEPARTMENT_ID IS NULL OR DEPARTMENT_ID = ?)`,
       [empId, permissionId, departmentId],
-      (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      }
+      (err, row) => (err ? reject(err) : resolve(row))
     );
   });
-  if (override) return override.ALLOW === 1;
 
-  // 3. get all roles of the user
+  if (override) {
+    // Nếu PERMISSION_ID null → mọi quyền trong department
+    if (override.PERMISSION_ID === null) return true;
+
+    // Nếu DEPARTMENT_ID null → quyền cho mọi department
+    if (override.DEPARTMENT_ID === null) return override.ALLOW === 1;
+
+    // Trường hợp bình thường → check ALLOW
+    return override.ALLOW === 1;
+  }
+
+  // 4. get all user role
   const roles = await new Promise((resolve, reject) => {
     db.all(
       `SELECT ROLE_NAME FROM EMPLOYEE_ROLES WHERE EMP_ID = ? AND DEPARTMENT_ID = ?`,
       [empId, departmentId],
-      (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows.map((r) => r.ROLE_NAME));
-      }
+      (err, rows) => (err ? reject(err) : resolve(rows.map((r) => r.ROLE_NAME)))
     );
   });
-  if (roles.length === 0) return false;
+  if (!roles.length) return false;
 
-  // 4. check if any role has the permission
+  // 5. Check role has permissions
   for (const role of roles) {
     const rolePerm = await new Promise((resolve, reject) => {
       db.get(
-        `SELECT * FROM ROLE_PERMISSIONS 
-         WHERE ROLE_NAME = ? AND PERMISSION_ID = ? 
-         AND (DEPARTMENT_ID IS NULL OR DEPARTMENT_ID = ?)`,
+        `SELECT * FROM ROLE_PERMISSIONS
+         WHERE ROLE_NAME = ?
+           AND PERMISSION_ID = ?
+           AND (DEPARTMENT_ID IS NULL OR DEPARTMENT_ID = ?)`,
         [role, permissionId, departmentId],
-        (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        }
+        (err, row) => (err ? reject(err) : resolve(row))
       );
     });
     if (rolePerm) return true;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 
 import EmployeeLogin from "./EmpLogin";
-import AdminLogin from "./Adminlogin";
+import AdminLogin from "./AdminLogin";
 
 const GlobalStyle = createGlobalStyle`
   body {

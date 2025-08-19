@@ -1,0 +1,60 @@
+[11-08-2025 17:02:03] ERROR: Uncaught error:
+[11-08-2025 17:03:05] ERROR: Uncaught error:
+[11-08-2025 17:03:17] ERROR: Error: SQLITE_ERROR: no such table: ADMINS
+--> in Database#get('SELECT ADMIN_ID FROM ADMINS WHERE USERNAME = ? AND PASSWORD = ? AND IS_ACTIVE = 1', [ undefined, undefined ], [Function (anonymous)])
+    at D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\src\routes\auth\auth.js:58:6
+    at Layer.handleRequest (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\layer.js:152:17)
+    at next (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\route.js:117:3)
+    at handle (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\layer.js:152:17)
+    at D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:295:15
+    at processParams (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:582:12)
+    at next (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:291:5)
+[11-08-2025 17:03:44] ERROR: Uncaught error:
+[12-08-2025 08:35:26] ERROR: Uncaught error:
+[12-08-2025 08:36:07] ERROR: Uncaught error:
+[12-08-2025 08:39:36] ERROR: Uncaught error:
+[12-08-2025 08:40:41] ERROR: Uncaught error:
+[12-08-2025 08:56:41] ERROR: Error: SQLITE_ERROR: no such table: ADMINS
+--> in Database#get('SELECT ADMIN_ID FROM ADMINS WHERE USERNAME = ? AND PASSWORD = ? AND IS_ACTIVE = 1', [ 'adminSPSYS00', 'adminSPSYS00' ], [Function (anonymous)])
+    at D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\src\routes\auth\auth.js:64:6
+    at Layer.handleRequest (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\layer.js:152:17)
+    at next (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\route.js:117:3)
+    at handle (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\layer.js:152:17)
+    at D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:295:15
+    at processParams (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:582:12)
+    at next (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:291:5)
+[12-08-2025 09:19:24] ERROR: Error: SQLITE_ERROR: no such table: ADMINS
+--> in Database#get('SELECT ADMIN_ID FROM ADMINS WHERE USERNAME = ? AND PASSWORD = ? AND IS_ACTIVE = 1', [ 'adminSPSYS00', 'adminSPSYS00' ], [Function (anonymous)])
+    at D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\src\routes\auth\auth.js:64:6
+    at Layer.handleRequest (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\layer.js:152:17)
+    at next (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\route.js:117:3)
+    at handle (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\layer.js:152:17)
+    at D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:295:15
+    at processParams (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:582:12)
+    at next (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:291:5)
+[12-08-2025 09:44:24] ERROR: Error: SQLITE_ERROR: no such table: ADMINS
+--> in Database#get('SELECT ADMIN_ID FROM ADMINS WHERE USERNAME = ? AND PASSWORD = ? AND IS_ACTIVE = 1', [ 'adminSPSYS00', 'adminSPSYS00' ], [Function (anonymous)])
+    at D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\src\routes\auth\auth.js:64:6
+    at Layer.handleRequest (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\layer.js:152:17)
+    at next (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\route.js:117:3)
+    at handle (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\lib\layer.js:152:17)
+    at D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:295:15
+    at processParams (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:582:12)
+    at next (D:\NamNguyenBackup\MyProject\FactorySPSystem\backend\node_modules\router\index.js:291:5)
+[15-08-2025 11:11:24] ERROR: Uncaught error:
+[15-08-2025 11:13:25] ERROR: Uncaught error:
+[15-08-2025 11:13:37] ERROR: Uncaught error:
+[15-08-2025 11:16:51] ERROR: Uncaught error:
+[16-08-2025 09:41:06] ERROR: Uncaught error:
+[16-08-2025 09:41:41] ERROR: Uncaught error:
+[16-08-2025 09:43:30] ERROR: Uncaught error:
+[16-08-2025 09:45:08] ERROR: Uncaught error:
+[16-08-2025 09:47:30] ERROR: Uncaught error:

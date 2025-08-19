@@ -1,4 +1,4 @@
-const formatDate = require("../../utils/dateTime/formatDate");
+const formatDate = require("@utils/dateTime/formatDate");
 
 /**
  * get period range based on the menu date

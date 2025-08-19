@@ -1,13 +1,18 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import authConstants from "@store/constants/authConstants";
 
-function Header({ empName, empId }) {
+function Header() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const empInfo = JSON.parse(localStorage.getItem("empInfo"));
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("empInfo");
+    localStorage.clear();
+    dispatch({
+      type: authConstants.LOGOUT,
+    });
     navigate("/login");
   };
 

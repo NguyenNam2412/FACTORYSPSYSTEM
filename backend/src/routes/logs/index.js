@@ -2,10 +2,10 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const router = express.Router();
-const { verifyToken } = require("../../middleware/authMiddleware"); // jwt
-const logger = require("../../utils/logger");
+const { verifyToken } = require("@middleware/authMiddleware"); // jwt
+const loggers = require("@utils/logger");
 
-router.get(logger, verifyToken, (req, res) => {
+router.get(loggers, verifyToken, (req, res) => {
   // admin only
   if (req.user?.role !== "admin") {
     return res.status(403).json({ error: "Forbidden" });

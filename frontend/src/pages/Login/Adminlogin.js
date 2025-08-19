@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
-import authConstants from "../../store/constants/authConstants";
-import authLogin from "../../store/selectors/authSelectors";
+import authConstants from "@store/constants/authConstants";
+import authSelectors from "@store/selectors/authSelectors";
 
 import {
   StyledInput,
   StyledButton,
   StyledLabel,
-} from "../../styles/login/LoginPage.styled";
+} from "@styles/login/LoginPage.styled";
 
 const AdminLoginContainer = styled.div`
   height: 460px;
@@ -39,35 +39,58 @@ const Form = styled.form`
   padding-top: 0px;
 `;
 
-function LoginPage(props) {
+function AdminLogin(props) {
   const { isActive, toggleForm } = props;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const loginSession = useSelector(authLogin.selectAuthSession);
-  const loading = useSelector(authLogin.selectAuthLoading);
-  const error = useSelector(authLogin.selectAuthLoading);
-  const navigate = useNavigate();
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  const loginSession = useSelector(authSelectors.selectAuthSession);
+  const loading = useSelector(authSelectors.selectAuthLoading);
+  const reduxError = useSelector(authSelectors.selectAuthError);
 
   const handleLogin = (e) => {
     e.preventDefault();
 
+    if (!username.trim() || !password.trim()) {
+      setErrorMsg("Username and password cannot be empty");
+      return;
+    }
+
+    setErrorMsg(null);
     dispatch({
       type: authConstants.LOGIN_REQUEST,
       payload: {
-        username: username,
-        password: password,
+        side: "admin",
+        username,
+        password,
       },
     });
   };
 
   useEffect(() => {
-    if (loginSession?.success) {
+    if (isActive && reduxError?.toLowerCase().includes("admin")) {
+      setErrorMsg("username or password doesn't exist!");
+    }
+  }, [reduxError, isActive]);
+
+  useEffect(() => {
+    if (isActive && loginSession?.success) {
+      setErrorMsg(null);
       localStorage.setItem("token", loginSession.token);
       localStorage.setItem("username", loginSession.username);
       navigate("/admin-side");
     }
-  }, [loginSession, navigate]);
+  }, [isActive, loginSession, navigate]);
+
+  useEffect(() => {
+    if (!isActive) {
+      setErrorMsg(null);
+    }
+  }, [isActive]);
 
   return (
     <AdminLoginContainer $isActive={isActive}>
@@ -82,7 +105,7 @@ function LoginPage(props) {
           onChange={(e) => setUsername(e.target.value)}
           required=""
           autoComplete="on"
-          disabled={!loading}
+          disabled={loading}
         />
         <StyledInput
           type="password"
@@ -90,19 +113,21 @@ function LoginPage(props) {
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
           required=""
-          disabled={!loading}
+          disabled={loading}
         />
         <div style={{ height: "0.9em" }}>
-          {error && (
+          {errorMsg && (
             <div style={{ color: "red", fontSize: "0.9em" }}>
-              username or password is incorrect!
+              {errorMsg || "Unknown error"}
             </div>
           )}
         </div>
-        <StyledButton onClick={handleLogin}>Login</StyledButton>
+        <StyledButton onClick={isActive && !loading ? handleLogin : null}>
+          Login
+        </StyledButton>
       </Form>
     </AdminLoginContainer>
   );
 }
 
-export default LoginPage;
+export default AdminLogin;

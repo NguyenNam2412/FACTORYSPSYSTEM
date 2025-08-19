@@ -1,14 +1,12 @@
-import axios from "axios";
+import { createAxiosWithToken } from "@api/axiosWithToken";
 
-const mealMenusUploadApi = axios.create({
-  baseURL: "http://localhost:5000/meal-menus",
-});
+const mealMenusUploadApi = createAxiosWithToken(
+  "http://localhost:5000/meal-menus",
+  { "Content-Type": "multipart/form-data" }
+);
 
-const mealMenusApi = axios.create({
-  baseURL: "http://localhost:5000/meal-menus",
-  headers: {
-    "Content-Type": "application/json",
-  },
+const mealMenusApi = createAxiosWithToken("http://localhost:5000/meal-menus", {
+  "Content-Type": "application/json",
 });
 
 const getListMealMenus = () => {
@@ -16,13 +14,11 @@ const getListMealMenus = () => {
 };
 
 const getListFilesMealMenus = () => {
-  return mealMenusApi.post("/listFilesMealMenus");
+  return mealMenusApi.get("/listFilesMealMenus");
 };
 
 const mealMenusUpload = (attachFile) => {
-  const formData = new FormData();
-  formData.append("file", attachFile);
-  return mealMenusUploadApi.post("/upload", formData);
+  return mealMenusUploadApi.post("/upload", attachFile);
 };
 
 const mealMenusDownload = (fileId) => {

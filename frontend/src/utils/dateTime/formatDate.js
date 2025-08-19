@@ -9,7 +9,7 @@ function toDateStr(d) {
 // 'DD/MM/YYYY'
 function toLocalDateStr(d) {
   if (!(d instanceof Date)) {
-    d = new Date(d); // convert epoch time or string
+    d = new Date(d); //  convert epoch time or string
   }
 
   const day = String(d.getDate()).padStart(2, "0");
@@ -18,9 +18,7 @@ function toLocalDateStr(d) {
   return `${day}/${month}/${year}`;
 }
 
-const formatDate = {
+export const formatDate = {
   toDateStr,
   toLocalDateStr,
 };
-
-module.exports = formatDate;

@@ -3,8 +3,8 @@ const request = require("supertest");
 const express = require("express");
 const XLSX = require("xlsx");
 
-const mealMenusRouter = require("../routes/mealMenus/mealMenusUpload.js");
-const { getDB, initDB } = require("../db");
+const mealMenusRouter = require("@routes/mealMenus/mealMenusUpload");
+const { getDB, initDB } = require("@db");
 
 const app = express();
 app.use(express.json());
@@ -140,7 +140,7 @@ describe("GET meal-menus/file/:file_id/download", () => {
   });
 });
 
-describe("DELETE /meal-menus/file/:file_id", () => {
+describe("DELETE /meal-menus/file/:file_id/delete", () => {
   const file_id = 123;
   const file_name = "Copy of CTTV - Thực đơn tuần 4.T7.xlsx";
 
@@ -155,7 +155,7 @@ describe("DELETE /meal-menus/file/:file_id", () => {
       cb?.(null);
     });
 
-    const res = await request(app).delete(`/meal-menus/file/${file_id}`);
+    const res = await request(app).delete(`/meal-menus/file/${file_id}/delete`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
@@ -169,8 +169,8 @@ describe("DELETE /meal-menus/file/:file_id", () => {
   });
 });
 
-describe("DELETE /meal-menus/files", () => {
-  const file_ids = [101, 102];
+describe("DELETE /meal-menus/files/delete", () => {
+  const fileIds = [101, 102];
   const fakeFiles = {
     101: { FILE_ID: 101, FILE_NAME: "menu1.xlsx" },
     102: { FILE_ID: 102, FILE_NAME: "menu2.xlsx" },
@@ -191,8 +191,8 @@ describe("DELETE /meal-menus/files", () => {
 
   it("should delete multiple files and return deleted file names", async () => {
     const res = await request(app)
-      .delete("/meal-menus/files")
-      .send({ file_ids });
+      .delete("/meal-menus/files/delete")
+      .send({ fileIds });
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);

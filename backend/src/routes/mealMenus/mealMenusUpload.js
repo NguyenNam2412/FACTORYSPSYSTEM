@@ -2,25 +2,22 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const XLSX = require("xlsx");
-const dayjs = require("dayjs");
+const dayjs = require("@utils/dateTime/dayjsConfig");
 
-const { hasPermissionByAction } = require("../../middleware/permissionCheck");
-const parseWeekAndMonth = require("../../helpers/fileName/mealMenusFileName");
-const { getDB } = require("../../db");
+const { getDB } = require("@db");
+const { hasPermissionByAction } = require("@middleware/permissionCheck");
+// Helper
+const getPeriod = require("@helpers/mealMenus/getPeriod");
+const parseWeekAndMonth = require("@helpers/fileName/mealMenusFileName");
+
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Permission IDs
 const UPLOAD_MEAL_MENU = "UPLOAD_MEAL_MENU";
 
-// Helper: format date to DD/MM/YYYY
-const formatDate = require("../../utils/dateTime/formatDate");
-
-// Helper: get period range
-const getPeriod = require("../../helpers/mealMenus/getPeriod");
-
 // Middleware: permission check
 async function checkPermission(user, res) {
-  const allowed = await hasPermissionByAction(user, UPLOAD_MEAL_MENU);
+  const allowed = await hasPermissionByAction(user?.empId, UPLOAD_MEAL_MENU);
   if (!allowed) {
     res.status(403).json({ error: "Forbidden: No permissions" });
     return false;
@@ -43,6 +40,8 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   // Period
   const { from_date_str, to_date_str, week, month, year } =
     getPeriod(menu_date);
+
+  const uploadedAt = Date.now();
 
   const db = getDB();
   // delete file menu same time, delete old file and menu
@@ -88,8 +87,8 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   const fileName = `Thực đơn tuần ${week}.T${month}.xlsx`;
   const file_id = await new Promise((resolve, reject) => {
     db.run(
-      "INSERT INTO MEAL_MENU_FILES (FILE_NAME, YEAR, MONTH, WEEK) VALUES (?, ?, ?, ?)",
-      [fileName, year, month, week],
+      "INSERT INTO MEAL_MENU_FILES (FILE_NAME, YEAR, MONTH, WEEK, UPLOADED_AT) VALUES (?, ?, ?, ?, ?)",
+      [fileName, year, month, week, uploadedAt],
       function (err) {
         if (err) reject(err);
         else resolve(this.lastID);
@@ -104,23 +103,40 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
 
     // turn raw data into structured menuData
-    const shift = raw[0][1] || "Ca trưa";
-    const dishTypes = raw.slice(1).map((row) => row[1]);
-    const days = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
-    const startCol = 2;
+    const shift = raw[3][2] || "Ca trưa";
+    const startRowIndex = 6;
     const menuData = [];
 
-    for (let dayIdx = 0; dayIdx < days.length; dayIdx++) {
-      // calculate real day from MENU_DATE (monday)
-      const menuDate = new Date(menu_date);
-      menuDate.setDate(menuDate.getDate() + dayIdx);
-      const menuDateStr = formatDate.toLocalDateStr(menuDate);
+    const fromDate = dayjs(from_date_str, "DD/MM/YYYY").startOf("day");
+    const toDate = dayjs(to_date_str, "DD/MM/YYYY").startOf("day");
 
-      for (let dishIdx = 0; dishIdx < dishTypes.length; dishIdx++) {
-        const row = raw[dishIdx + 1];
-        const dishType = dishTypes[dishIdx];
-        const name_vi = row[startCol + dayIdx * 2] || "";
-        const name_en = row[startCol + dayIdx * 2 + 1] || "";
+    const days = [];
+    let current = fromDate;
+    while (current.valueOf() <= toDate.valueOf()) {
+      if (current.day() !== 0) {
+        // 0 = Sunday
+        days.push(current.format("DD/MM/YYYY"));
+      }
+      current = current.add(1, "day");
+    }
+
+    days.forEach((menuDateStr, dayIdx) => {
+      // approve each dish type (2 row: VI and EN)
+      for (let i = startRowIndex; i < raw.length; i += 2) {
+        const rowVi = raw[i]; // VI
+        const rowEn = raw[i + 1]; // EN
+
+        if (!rowVi || !rowVi[0]) continue; // let row empty
+
+        const dishType = rowVi[0]; // col 0 is dish type
+        const colIndex = 1 + dayIdx * 3; // col current day
+
+        // get cell value, including "#N/A"
+        const name_vi =
+          rowVi[colIndex] !== undefined ? String(rowVi[colIndex]) : "";
+        const name_en =
+          rowEn && rowEn[colIndex] !== undefined ? String(rowEn[colIndex]) : "";
+
         if (dishType && (name_vi || name_en)) {
           menuData.push({
             MENU_DATE: menuDateStr,
@@ -132,7 +148,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
           });
         }
       }
-    }
+    });
 
     // save to DB
     await Promise.all(
@@ -158,14 +174,12 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       )
     );
 
-    const start = dayjs(from_date_str, "DD/MM/YYYY").startOf("day").valueOf();
-    const end = dayjs(to_date_str, "DD/MM/YYYY").startOf("day").valueOf();
-
     res.json({
       success: true,
       file: fileName,
-      period: { from: start, to: end },
-      menus: menuData,
+      fileId: file_id,
+      uploadedAt,
+      period: { from: fromDate.valueOf(), to: toDate.valueOf() },
     });
   } catch (err) {
     res
@@ -246,7 +260,7 @@ router.get("/file/:file_id/download", async (req, res) => {
 });
 
 // delete file and menus by file_id
-router.delete("/file/:file_id", async (req, res) => {
+router.delete("/file/:file_id/delete", async (req, res) => {
   const user = req.user;
   if (!(await checkPermission(user, res))) return;
   const file_id = Number(req.params.file_id);
@@ -267,18 +281,16 @@ router.delete("/file/:file_id", async (req, res) => {
 });
 
 // delete multiple files and menus
-router.delete("/files", async (req, res) => {
+router.delete("/files/delete", async (req, res) => {
   const user = req.user;
   if (!(await checkPermission(user, res))) return;
-  const { file_ids } = req.body;
-  if (!Array.isArray(file_ids) || file_ids.length === 0) {
-    return res
-      .status(400)
-      .json({ error: "file_ids must be a non-empty array" });
+  const { fileIds } = req.body;
+  if (!Array.isArray(fileIds) || fileIds.length === 0) {
+    return res.status(400).json({ error: "fileIds must be a non-empty array" });
   }
 
   const deletedFiles = [];
-  for (const file_id of file_ids) {
+  for (const file_id of fileIds) {
     await new Promise((resolve) => {
       const db = getDB();
       db.get(

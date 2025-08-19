@@ -1,17 +1,25 @@
 import { createSelector } from "reselect";
 
-const selectListMealMenus = (state) => state.mealMenus.listMealMenus;
+const selectListMealMenus = (state) => {
+  return state.mealMenus.listMealMenus;
+};
 
 const selectListMealMenusByDate = (date) =>
   createSelector([selectListMealMenus], (menus) =>
     menus.filter((menu) => menu.date === date)
   );
 
-const selectListFilesMealMenus = (state) => state.mealMenus.listFilesMealMenus;
+const selectListFilesMealMenus = (state) => {
+  return state.mealMenus.listFilesMealMenus;
+};
 
-const selectMealMenusUploadStatus = (state) => state.mealMenus.uploadStatus;
+const selectMealMenusUploadStatus = (state) => {
+  return state.mealMenus.uploadStatus;
+};
 
-const selectMealMenusDownloadFile = (state) => state.mealMenus.downloadFile;
+const selectMealMenusDownloadFile = (state) => {
+  return state.mealMenus.downloadFile;
+};
 
 const mealMenusSelectors = {
   selectListMealMenus,
