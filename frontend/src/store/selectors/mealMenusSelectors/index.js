@@ -1,17 +1,22 @@
 import { createSelector } from "reselect";
+import { parseWeekAndMonth } from "@helpers/fileName/mealMenusFileName";
 
 const selectListMealMenus = (state) => {
   return state.mealMenus.listMealMenus;
 };
 
-const selectListMealMenusByDate = (date) =>
-  createSelector([selectListMealMenus], (menus) =>
-    menus.filter((menu) => menu.date === date)
-  );
+const selectListFilesMealMenus = createSelector(
+  (state) => state.mealMenus.listFilesMealMenus,
+  (listFiles) => {
+    return [...listFiles].sort((a, b) => {
+      const { week: weekA, month: monthA } = parseWeekAndMonth(a.fileName);
+      const { week: weekB, month: monthB } = parseWeekAndMonth(b.fileName);
 
-const selectListFilesMealMenus = (state) => {
-  return state.mealMenus.listFilesMealMenus;
-};
+      if (monthA !== monthB) return monthA - monthB;
+      return weekA - weekB;
+    });
+  }
+);
 
 const selectMealMenusUploadStatus = (state) => {
   return state.mealMenus.uploadStatus;
@@ -23,7 +28,6 @@ const selectMealMenusDownloadFile = (state) => {
 
 const mealMenusSelectors = {
   selectListMealMenus,
-  selectListMealMenusByDate,
   selectListFilesMealMenus,
   selectMealMenusUploadStatus,
   selectMealMenusDownloadFile,

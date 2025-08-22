@@ -1,9 +1,8 @@
-// src/store/mealMenus/mealMenusSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  listMealMenus: [], // Danh sách meal menus (nội dung món ăn)
-  listFilesMealMenus: [], // Danh sách file meal menus đã upload
+  listMealMenus: [],
+  listFilesMealMenus: [],
   loading: false,
   error: null,
   uploadStatus: null,
@@ -85,7 +84,7 @@ const mealMenusSlice = createSlice({
     deleteSuccess: (state, action) => {
       state.loading = false;
       state.listFilesMealMenus = state.listFilesMealMenus.filter(
-        (file) => file.id !== action.payload
+        (file) => file.fileId !== action.payload
       );
     },
     deleteFailure: (state, action) => {

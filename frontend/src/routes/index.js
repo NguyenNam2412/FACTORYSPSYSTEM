@@ -9,6 +9,7 @@ import AdminSide from "@pages/Admin/AdminSide";
 
 //home side
 import ListFileMealMenus from "@pages/mealMenus/ListFileMealMenus";
+import MealMenus from "@pages/mealMenus/MealMenus";
 
 const AppRouter = () => (
   <ErrorBoundary fallback={<div>Something went wrong</div>}>
@@ -24,10 +25,14 @@ const AppRouter = () => (
         }
       >
         {/* default Route redirect to meal-menus */}
-        <Route index element={<Navigate to="meal-menus" replace />} />
+        <Route index element={<Navigate to="meal-menus/all" replace />} />
 
         {/* real route meal-menus */}
-        <Route path="meal-menus" element={<ListFileMealMenus />} />
+        <Route path="meal-menus/all" element={<MealMenus />} />
+        <Route
+          path="meal-menus/list-files-meal-menus"
+          element={<ListFileMealMenus />}
+        />
 
         {/* other route */}
         {/* <Route path="other" element={<OtherPage />} /> */}

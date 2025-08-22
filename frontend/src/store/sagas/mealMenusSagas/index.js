@@ -18,7 +18,7 @@ function* fetchListMealMenus(action) {
     const res = yield call(getListMealMenus, action.payload);
     yield put({
       type: mealMenusConstants.GET_LIST_MEAL_MENUS_SUCCESS,
-      payload: res.data,
+      payload: res.data?.menus,
     });
   } catch (err) {
     yield put({
@@ -66,10 +66,15 @@ function* uploadMealMenus(action) {
     );
 
     const res = yield call(mealMenusUpload, formData);
+    const payload = {
+      fileId: res.data.fileId,
+      fileName: res.data.file,
+      uploadedAt: res.data.uploadedAt,
+    };
 
     yield put({
       type: mealMenusConstants.UPLOAD_MEAL_MENUS_SUCCESS,
-      payload: existFile ? null : res.data,
+      payload: existFile ? null : payload,
     });
   } catch (err) {
     yield put({
@@ -99,7 +104,10 @@ function* downloadMealMenus(action) {
 function* deleteMealMenus(action) {
   try {
     yield call(mealMenusDelete, action.payload);
-    yield put({ type: mealMenusConstants.DELETE_MEAL_MENUS_SUCCESS });
+    yield put({
+      type: mealMenusConstants.DELETE_MEAL_MENUS_SUCCESS,
+      payload: action.payload,
+    });
   } catch (err) {
     yield put({
       type: mealMenusConstants.DELETE_MEAL_MENUS_FAILURE,

@@ -10,7 +10,7 @@ const mealMenusApi = createAxiosWithToken("http://localhost:5000/meal-menus", {
 });
 
 const getListMealMenus = () => {
-  return mealMenusApi.post("/all");
+  return mealMenusApi.get("/all");
 };
 
 const getListFilesMealMenus = () => {
@@ -28,7 +28,7 @@ const mealMenusDownload = (fileId) => {
 };
 
 const mealMenusDelete = (fileId) => {
-  return mealMenusApi.post(`/file/${fileId}/delete`);
+  return mealMenusApi.delete(`/file/${fileId}/delete`);
 };
 
 const mealMenusDeleteMultiple = (fileIds) => {

@@ -17,7 +17,10 @@ function Navbar() {
 
   return (
     <nav style={navStyle}>
-      <NavLink to="/meal-menus" style={linkStyle}>
+      <NavLink to="/meal-menus/all" style={linkStyle}>
+        Meal Menus
+      </NavLink>
+      <NavLink to="/meal-menus/list-files-meal-menus" style={linkStyle}>
         Meal Menus Files
       </NavLink>
     </nav>

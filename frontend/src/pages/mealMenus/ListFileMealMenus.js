@@ -34,6 +34,13 @@ function ListFileMealMenus() {
     event.target.value = "";
   };
 
+  const deletedFileMealMenus = (id) => {
+    dispatch({
+      type: mealMenusConstants.DELETE_MEAL_MENUS_REQUEST,
+      payload: id,
+    });
+  };
+
   const isUploading = uploadStatus === "loading";
 
   return (
@@ -80,7 +87,10 @@ function ListFileMealMenus() {
             marginBottom: "5px",
           }}
         >
-          {file.fileName}
+          <div>{file.fileName}</div>
+          <button onClick={() => deletedFileMealMenus(file.fileId)}>
+            delete
+          </button>
         </div>
       ))}
     </div>

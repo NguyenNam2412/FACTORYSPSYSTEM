@@ -179,7 +179,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       file: fileName,
       fileId: file_id,
       uploadedAt,
-      period: { from: fromDate.valueOf(), to: toDate.valueOf() },
+      period: { from: fromDate.valueOf(), to: toDate.valueOf(), week },
     });
   } catch (err) {
     res
@@ -264,6 +264,7 @@ router.delete("/file/:file_id/delete", async (req, res) => {
   const user = req.user;
   if (!(await checkPermission(user, res))) return;
   const file_id = Number(req.params.file_id);
+  console.log(file_id);
   const db = getDB();
   db.get(
     "SELECT * FROM MEAL_MENU_FILES WHERE FILE_ID = ?",
