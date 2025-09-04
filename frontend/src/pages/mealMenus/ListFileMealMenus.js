@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 
 import mealMenusConstants from "@store/constants/mealMenusConstants";

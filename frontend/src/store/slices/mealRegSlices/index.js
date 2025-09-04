@@ -19,7 +19,7 @@ const regMealSlices = createSlice({
     },
     getMyMealRegSuccess: (state, action) => {
       state.loading = false;
-      state.myReg = action.payload;
+      state.myReg = action.payload?.regData;
     },
     getMyMealRegFailure: (state, action) => {
       state.loading = false;
@@ -27,7 +27,7 @@ const regMealSlices = createSlice({
     },
 
     // ===== all reg =====
-    getAllRefRequest: (state) => {
+    getAllRegRequest: (state) => {
       state.loading = true;
       state.error = null;
     },
@@ -44,7 +44,7 @@ const regMealSlices = createSlice({
     exportFileRegRequest: (state) => {
       state.loading = true;
     },
-    exportFileRegSuccess: (state, action) => {
+    exportFileRegSuccess: (state) => {
       state.loading = false;
       state.download = "success";
     },

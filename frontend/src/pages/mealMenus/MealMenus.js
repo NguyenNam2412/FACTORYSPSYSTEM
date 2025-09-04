@@ -1,5 +1,8 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
+
+import dayjs from "@utils/dateTime/dayjsConfig";
+import { formatDate } from "@utils/dateTime/formatDate";
 
 import mealMenusConstants from "@store/constants/mealMenusConstants";
 import mealRegConstants from "@store/constants/mealRegConstants";
@@ -8,54 +11,65 @@ import mealRegSelectors from "@store/selectors/mealRegSelectors";
 
 import CalendarView from "@components/Calendar/CalendarView";
 
-import { formatDate } from "@utils/dateTime/formatDate";
-
 const disabledDates = [];
-
-function groupMenuByDate(menus) {
-  return menus.reduce((acc, item) => {
-    const date = item.MENU_DATE; // format "dd/MM/yyyy"
-    if (!acc[date]) acc[date] = [];
-    acc[date].push(item);
-    return acc;
-  }, {});
-}
 
 function MealMenus() {
   const dispatch = useDispatch();
 
-  const { mealMenus } = useSelector(
+  const { mealMenus, myMealReg } = useSelector(
     (state) => ({
       mealMenus: mealMenusSelectors.selectListMealMenus(state),
+      myMealReg: mealRegSelectors.selectMyRegMeal(state),
     }),
     shallowEqual
   );
 
-  // Group menus
-  const menusByDate = useMemo(() => groupMenuByDate(mealMenus), [mealMenus]);
-
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [checkedDays, setCheckedDays] = useState([]);
+
+  const [regList, setRegList] = useState([]);
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    setRegList(myMealReg);
+  }, [myMealReg]);
+
+  useEffect(() => {
+    setNote(
+      regList.find((item) =>
+        dayjs(item.REG_DATE, "DD/MM/YYYY").isSame(dayjs(selectedDate), "day")
+      )?.NOTE || ""
+    );
+  }, [regList, selectedDate]);
 
   useEffect(() => {
     dispatch({
       type: mealMenusConstants.GET_LIST_MEAL_MENUS_REQUEST,
     });
+    dispatch({
+      type: mealRegConstants.GET_MY_REG_MEAL_REQUEST,
+    });
   }, [dispatch]);
 
   const todayKey = formatDate.toLocalDateStr(selectedDate);
-  const todayMenus = menusByDate[todayKey] || [];
+  const todayMenus = mealMenus[todayKey] || [];
+
+  const checkedDays = regList.map((item) => item.REG_DATE);
 
   const handleCheck = (date) => {
     const key = formatDate.toLocalDateStr(date);
-    let newCheckedDays;
-    if (checkedDays.includes(key)) {
-      newCheckedDays = checkedDays.filter((day) => day !== key);
+    const checked = !checkedDays.includes(key);
+
+    let newList;
+    if (checked) {
+      newList = [...regList, { REG_DATE: key, QTY: 1, NOTE: "" }];
     } else {
-      newCheckedDays = [...checkedDays, key];
+      newList = regList.filter((item) => item.REG_DATE !== key);
     }
-    console.log(newCheckedDays);
-    setCheckedDays(newCheckedDays);
+    setRegList(newList);
+    dispatch({
+      type: mealRegConstants.UPDATE_REG_MEAL_REQUEST,
+      payload: newList,
+    });
   };
 
   const isDisabled = (date) => {
@@ -97,11 +111,23 @@ function MealMenus() {
     return false;
   };
 
+  const handleSaveNote = (dateKey, noteText) => {
+    const newList = regList.map((item) =>
+      item.REG_DATE === dateKey ? { ...item, NOTE: noteText } : item
+    );
+    setRegList(newList);
+    dispatch({
+      type: mealRegConstants.UPDATE_REG_MEAL_REQUEST,
+      payload: newList,
+    });
+    setNote(""); // reset input
+  };
+
   const titleContent = ({ date }) => {
     const key = formatDate.toLocalDateStr(date);
     return (
       <>
-        {menusByDate[key] && <div className="calendar-dot"></div>}
+        {mealMenus[key] && <div className="calendar-dot"></div>}
 
         <input
           type="checkbox"
@@ -117,7 +143,14 @@ function MealMenus() {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       {/* calendar */}
-      <div style={{ flex: 1, padding: "10px", borderBottom: "1px solid #ccc" }}>
+      <div
+        style={{
+          flex: 1,
+          maxWidth: "800px",
+          padding: "10px",
+          borderBottom: "1px solid #ccc",
+        }}
+      >
         <CalendarView
           onChange={(date) => setSelectedDate(date)}
           value={selectedDate}
@@ -128,18 +161,76 @@ function MealMenus() {
 
       {/* menus */}
       <div style={{ flex: 1, padding: "10px", overflowY: "auto" }}>
-        <h3>Thực đơn ngày {todayKey}</h3>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}
+        >
+          <h3 style={{ margin: 0 }}>Thực đơn ngày {todayKey}</h3>
+
+          {((todayMenus.length > 0 &&
+            checkedDays.includes(todayKey) &&
+            !isDisabled(formatDate.parseLocalDate(todayKey))) ||
+            note.length > 0) && (
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <textarea
+                id="noteInput"
+                maxLength={50}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Nhập ghi chú..."
+                disabled={
+                  todayMenus.length > 0 &&
+                  checkedDays.includes(todayKey) &&
+                  !isDisabled(formatDate.parseLocalDate(todayKey))
+                }
+                rows={2}
+                style={{
+                  width: "200px",
+                  padding: "6px",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  resize: "none",
+                }}
+              />
+              {todayMenus.length > 0 &&
+                checkedDays.includes(todayKey) &&
+                !isDisabled(formatDate.parseLocalDate(todayKey)) && (
+                  <button
+                    onClick={() => handleSaveNote(todayKey, note)}
+                    disabled={!note.trim()}
+                    style={{
+                      padding: "6px 10px",
+                      backgroundColor: "#4caf50",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: note.trim() ? "pointer" : "not-allowed",
+                      height: "40px",
+                    }}
+                  >
+                    Save
+                  </button>
+                )}
+            </div>
+          )}
+        </div>
+
         {todayMenus.length > 0 ? (
-          <ul>
-            {todayMenus.map((item) => (
-              <li key={item.MENU_ID}>
-                <b>{item.DISH_TYPE.split("\r\n")[0]}</b>: {item.NAME_VI}{" "}
-                <i style={{ display: !item.NAME_EN && "none" }}>
-                  ({item.NAME_EN})
-                </i>
-              </li>
-            ))}
-          </ul>
+          <div>
+            <ul>
+              {todayMenus.map((item) => (
+                <li key={item.MENU_ID}>
+                  <b>{item.DISH_TYPE.split("\r\n")[0]}</b>: {item.NAME_VI}{" "}
+                  <i style={{ display: !item.NAME_EN && "none" }}>
+                    ({item.NAME_EN})
+                  </i>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : (
           <div>Không có thực đơn</div>
         )}

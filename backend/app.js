@@ -15,15 +15,6 @@ require("dotenv").config();
 const { initDB } = require("@db");
 const loggers = require("@utils/logger");
 
-app.use(bodyParser.json());
-app.use(
-  cors({
-    origin: "http://localhost:3000", // ['http://localhost:3000', 'https://domain.com']
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-
 // generates DB
 initDB();
 
@@ -33,6 +24,16 @@ const { authRouter } = require("@routes/auth");
 const mealMenusRouter = require("@routes/mealMenus/mealMenus");
 const fileMealMenusRouter = require("@routes/mealMenus/mealMenusUpload");
 const mealRegistrationsRouter = require("@routes/mealMenus/mealRegistrations");
+
+app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: "http://localhost:3000", // ['http://localhost:3000', 'https://domain.com']
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 const publicPaths = ["/login"];
 

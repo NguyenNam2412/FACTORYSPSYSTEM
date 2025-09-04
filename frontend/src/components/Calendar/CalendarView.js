@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import CalendarStyle from "@components/Calendar";
 import {
   CalendarWrapper,
@@ -8,11 +8,13 @@ import {
 } from "@styles/calendar/CalendarWrapper.styled";
 
 function CalendarView(props) {
-  const [activeStartDate, setActiveStartDate] = useState(new Date()); // tháng/năm hiển thị
+  const { customStyle, viewType = null } = props;
+  const [activeStartDate, setActiveStartDate] = useState(new Date());
 
   const formatMonthYear = (date) => {
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
+    if (viewType && viewType === "datePicker") return `${month}/${year}`;
     return `${month} ${year}`;
   };
 
@@ -41,7 +43,9 @@ function CalendarView(props) {
           <NavButton onClick={() => changeMonth(-1)}>{`<`}</NavButton>
         </NavButtonGroup>
 
-        <span>{formatMonthYear(activeStartDate)}</span>
+        <span style={{ ...customStyle?.headerStyle }}>
+          {formatMonthYear(activeStartDate)}
+        </span>
 
         <NavButtonGroup>
           <NavButton onClick={() => changeMonth(1)}>{`>`}</NavButton>
@@ -56,6 +60,7 @@ function CalendarView(props) {
         onActiveStartDateChange={({ activeStartDate }) =>
           setActiveStartDate(activeStartDate)
         }
+        customStyle={{ ...customStyle?.calendarStyle }}
       />
     </CalendarWrapper>
   );

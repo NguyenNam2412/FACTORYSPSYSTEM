@@ -9,10 +9,16 @@ import {
 
 import mealRegConstants from "@store/constants/mealRegConstants";
 
+const dishTypeConstants = {
+  LUNCH_REG: "LUNCH_REG",
+  DINNER_REG: "DINNER_REG",
+  LATE_REG: "LATE_REG",
+};
+
 // ===== get my reg =====
-function* fetchMyRegMeal(action) {
+function* fetchMyRegMeal() {
   try {
-    const res = yield call(getMyMealReg, action.payload);
+    const res = yield call(getMyMealReg, dishTypeConstants.LUNCH_REG);
     yield put({
       type: mealRegConstants.GET_MY_REG_MEAL_SUCCESS,
       payload: res.data,
@@ -28,7 +34,12 @@ function* fetchMyRegMeal(action) {
 // ===== all reg =====
 function* fetchAllMealReg(action) {
   try {
-    const res = yield call(getAllMealReg, action.payload);
+    const data = {
+      dish_type: dishTypeConstants.LUNCH_REG,
+      reg_date: action.payload,
+    };
+
+    const res = yield call(getAllMealReg, data);
     yield put({
       type: mealRegConstants.GET_ALL_REG_MEAL_SUCCESS,
       payload: res.data,
@@ -76,11 +87,17 @@ function* exportFileMealReg(action) {
 // ===== update reg =====
 function* updateMyMealReg(action) {
   try {
-    const res = yield call(getUpdateRegMeal, action.payload);
-    yield put({
-      type: mealRegConstants.UPDATE_REG_MEAL_SUCCESS,
-      payload: res.data?.assigned_data,
-    });
+    const data = {
+      dish_type: dishTypeConstants.LUNCH_REG,
+      reg_data: JSON.stringify(action.payload),
+    };
+    if (data.reg_data.length > 0) {
+      const res = yield call(getUpdateRegMeal, data);
+      yield put({
+        type: mealRegConstants.UPDATE_REG_MEAL_SUCCESS,
+        payload: res.data?.assigned_data,
+      });
+    }
   } catch (err) {
     yield put({
       type: mealRegConstants.UPDATE_REG_MEAL_FAILURE,

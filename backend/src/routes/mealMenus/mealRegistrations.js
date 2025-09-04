@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
+const dayjs = require("@utils/dateTime/dayjsConfig");
+
 const { getDB } = require("@db");
 const { hasPermissionByAction } = require("@middleware/permissionCheck");
 
 const XLSX = require("xlsx");
+const { verifyToken } = require("@middleware/authMiddleware");
 
 const VIEW_MEAL_REGISTRATION = "VIEW_MEAL_REGISTRATION";
 
@@ -29,10 +32,10 @@ function shortArrayByDate(arr, order = "desc") {
 }
 
 // Get all registrations by emp_id
-router.get("/my-reg", (req, res) => {
-  const { dish_type } = req.query;
-  const user = req.user; //
-  const emp_id = user?.emp_id;
+router.post("/my-reg", verifyToken, (req, res) => {
+  const { dish_type } = req.body;
+  const user = req.user;
+  const emp_id = user?.empId;
 
   if (!emp_id) {
     return res.status(400).json({ error: "Unauthorized: No emp_id in token" });
@@ -41,65 +44,50 @@ router.get("/my-reg", (req, res) => {
   const sql = `SELECT EMP_ID, ${dish_type} FROM MEAL_REGISTRATIONS WHERE EMP_ID = ?`;
   const db = getDB();
 
-  db.all(sql, [emp_id], (err, rows) => {
+  db.get(sql, [emp_id], (err, userReg) => {
     if (err) return res.status(500).json({ error: err.message });
+    const empId = userReg.EMP_ID;
+    const regData = shortArrayByDate(JSON.parse(userReg[dish_type]) || []);
 
-    const grouped = [];
+    const userRegData = {
+      empId,
+      regData,
+    };
 
-    rows.forEach((row) => {
-      const empId = row.EMP_ID;
-      const regData = JSON.parse(row[dish_type]) || [];
-
-      regData.forEach((item) => {
-        const regObj = {
-          EMP_ID: empId,
-          REG_DATE: item.REG_DATE,
-          QTY: item.QTY,
-          NOTE: item.NOTE,
-        };
-        grouped.push(regObj);
-      });
-    });
-
-    const sortGrouped = shortArrayByDate(grouped);
-    const result = Object.values(sortGrouped);
-    res.json(result);
+    res.json(userRegData);
   });
 });
 
 // Get all meal registrations
-router.get("/meal-reg", async (req, res) => {
-  const { reg_date, dish_type } = req.query;
+router.post("/meal-reg", async (req, res) => {
+  const { reg_date, dish_type } = req.body;
 
   const user = req.user;
-  const emp_id = user?.emp_id;
+  const emp_id = user?.empId;
 
   if (!emp_id) {
     return res.status(401).json({ error: "Unauthorized: No emp_id in token" });
   }
 
-  if (!(await checkPermission(user, res))) return;
+  if (!(await checkPermission(emp_id, res))) return;
 
   const sql = `SELECT A.EMP_ID, B.${dish_type}, A.FULL_NAME, A.DEPARTMENT_ID 
-  FROM EMPLOYEES A INNER JOIN MEAL_REGISTRATIONS B 
+  FROM EMPLOYEES A RIGHT JOIN MEAL_REGISTRATIONS B 
   ON A.EMP_ID = B.EMP_ID 
   ORDER BY A.DEPARTMENT_ID ASC`;
   const db = getDB();
 
-  db.all(sql, [reg_date], (err, rows) => {
+  db.all(sql, [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
 
     const grouped = [];
 
     rows.forEach((row) => {
       const empId = row.EMP_ID;
-      const regDate = new Date(JSON.parse(reg_date)).toLocaleDateString(
-        "en-GB"
-      );
       const regData = JSON.parse(row[dish_type]) || [];
 
       regData.forEach((item) => {
-        if (item.REG_DATE === regDate) {
+        if (dayjs(reg_date).isSame(dayjs(item.REG_DATE, "DD/MM/YYYY"), "day")) {
           const regObj = {
             EMP_ID: empId,
             FULL_NAME: row.FULL_NAME,
@@ -119,10 +107,10 @@ router.get("/meal-reg", async (req, res) => {
 });
 
 // Export meal registrations to Excel
-router.get("/meal-reg/export", async (req, res) => {
-  const { reg_date, dish_type } = req.query;
+router.post("/meal-reg/export", async (req, res) => {
+  const { reg_date, dish_type } = req.body;
   const user = req.user;
-  const emp_id = user?.emp_id;
+  const emp_id = user?.empId;
 
   if (!emp_id) {
     return res.status(401).json({ error: "Unauthorized: No emp_id in token" });
@@ -136,7 +124,7 @@ router.get("/meal-reg/export", async (req, res) => {
   ORDER BY A.DEPARTMENT_ID ASC`;
 
   const db = getDB();
-  db.all(sql, [reg_date], (err, rows) => {
+  db.get(sql, [reg_date], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
 
     const grouped = [];
@@ -209,7 +197,7 @@ router.get("/meal-reg/export", async (req, res) => {
 router.post("/update", (req, res) => {
   const { dish_type, reg_data } = req.body;
   const user = req.user;
-  const emp_id = user?.emp_id;
+  const emp_id = user?.empId;
 
   if (!emp_id) {
     return res.status(400).json({ error: "EMP_ID and from_date are required" });

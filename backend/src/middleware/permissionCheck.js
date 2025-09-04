@@ -22,6 +22,7 @@ async function hasPermissionByAction(empId, permissionId) {
     );
   });
   if (!emp) return false;
+
   const departmentId = emp.DEPARTMENT_ID;
 
   // 2. check permission exit
@@ -79,6 +80,7 @@ async function hasPermissionByAction(empId, permissionId) {
         (err, row) => (err ? reject(err) : resolve(row))
       );
     });
+    console.log(rolePerm);
     if (rolePerm) return true;
   }
 

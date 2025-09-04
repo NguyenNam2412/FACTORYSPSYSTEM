@@ -5,20 +5,20 @@ const mealRegApi = createAxiosWithToken(
   { "Content-Type": "application/json" }
 );
 
-const getMyMealReg = () => {
-  return mealRegApi.get("/my-reg");
+const getMyMealReg = (dishType) => {
+  return mealRegApi.post("/my-reg", { dish_type: dishType });
 };
 
-const getAllMealReg = () => {
-  return mealRegApi.get("/meal-reg");
+const getAllMealReg = (data) => {
+  return mealRegApi.post("/meal-reg", data);
 };
 
 const getExportFileMealReg = () => {
   return mealRegApi.get("/meal-reg/export");
 };
 
-const getUpdateRegMeal = () => {
-  return mealRegApi.get("/update");
+const getUpdateRegMeal = (data) => {
+  return mealRegApi.post("/update", data);
 };
 
 export { getMyMealReg, getAllMealReg, getExportFileMealReg, getUpdateRegMeal };

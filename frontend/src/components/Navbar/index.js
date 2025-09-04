@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
 
 function Navbar() {
@@ -22,6 +21,9 @@ function Navbar() {
       </NavLink>
       <NavLink to="/meal-menus/list-files-meal-menus" style={linkStyle}>
         Meal Menus Files
+      </NavLink>
+      <NavLink to="/meal-menus/list-meal-reg" style={linkStyle}>
+        Meal Registrations
       </NavLink>
     </nav>
   );

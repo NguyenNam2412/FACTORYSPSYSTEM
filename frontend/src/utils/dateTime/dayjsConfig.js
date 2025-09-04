@@ -1,7 +1,10 @@
-const dayjs = require("dayjs");
-const customParseFormat = require("dayjs/plugin/customParseFormat");
-dayjs.extend(customParseFormat);
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
 dayjs.extend(customParseFormat);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
-module.exports = dayjs;
+export default dayjs;

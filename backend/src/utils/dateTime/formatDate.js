@@ -1,25 +1,47 @@
-// '2025-07-27'
-function toDateStr(d) {
-  if (!(d instanceof Date)) {
-    d = new Date(d); // convert epoch time or string
+const dayjs = require("./dayjsConfig");
+
+// input to Date
+function parseLocalDate(input) {
+  if (!input) return null;
+
+  // Date
+  if (input instanceof Date) return new Date(input.getTime());
+
+  // epoch
+  if (typeof input === "number") return new Date(input);
+
+  // "DD/MM/YYYY"
+  if (typeof input === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(input)) {
+    const [day, month, year] = input.split("/").map(Number);
+    return new Date(year, month - 1, day);
   }
-  return d.toISOString().slice(0, 10);
+
+  const d = dayjs(input);
+  return d.isValid() ? d.toDate() : null;
 }
 
-// 'DD/MM/YYYY'
-function toLocalDateStr(d) {
-  if (!(d instanceof Date)) {
-    d = new Date(d); // convert epoch time or string
-  }
+// set time to 00:00:00
+function normalizeToStartOfDay(input) {
+  const d = parseLocalDate(input);
+  return d ? dayjs(d).startOf("day").toDate() : null;
+}
 
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-  return `${day}/${month}/${year}`;
+// input to epoch (ms)
+function toEpochTime(input) {
+  const d = parseLocalDate(input);
+  return d ? dayjs(d).startOf("day").valueOf() : null;
+}
+
+// input to "DD/MM/YYYY"
+function toLocalDateStr(input) {
+  const d = parseLocalDate(input);
+  return d ? dayjs(d).startOf("day").format("DD/MM/YYYY") : "";
 }
 
 const formatDate = {
-  toDateStr,
+  parseLocalDate,
+  normalizeToStartOfDay,
+  toEpochTime,
   toLocalDateStr,
 };
 

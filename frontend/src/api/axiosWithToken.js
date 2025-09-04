@@ -6,6 +6,7 @@ import { store } from "@store";
 export const createAxiosWithToken = (baseURL, defaultHeaders = {}) => {
   const instance = axios.create({
     baseURL,
+    withCredentials: true,
     headers: defaultHeaders,
   });
 

@@ -1,19 +1,43 @@
 import { createSelector } from "reselect";
 import { parseWeekAndMonth } from "@helpers/fileName/mealMenusFileName";
+import { formatDate } from "@utils/dateTime/formatDate";
 
-const selectListMealMenus = (state) => {
-  return state.mealMenus.listMealMenus;
-};
+const selectMealMenusState = (state) => state.mealMenus.listMealMenus;
+
+const selectListMealMenus = createSelector(
+  [selectMealMenusState],
+  (listMealMenus) => {
+    const grouped = listMealMenus.reduce((acc, item) => {
+      const date = item.MENU_DATE;
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(item);
+      return acc;
+    }, {});
+
+    const sortedKeys = Object.keys(grouped).sort(
+      (a, b) => formatDate.toEpochTime(b) - formatDate.toEpochTime(a)
+    );
+
+    const sorted = {};
+    sortedKeys.forEach((key) => {
+      sorted[key] = grouped[key];
+    });
+
+    return sorted;
+  }
+);
 
 const selectListFilesMealMenus = createSelector(
   (state) => state.mealMenus.listFilesMealMenus,
   (listFiles) => {
     return [...listFiles].sort((a, b) => {
-      const { week: weekA, month: monthA } = parseWeekAndMonth(a.fileName);
-      const { week: weekB, month: monthB } = parseWeekAndMonth(b.fileName);
+      const { from: fromA } = parseWeekAndMonth(a.fileName);
+      const { from: fromB } = parseWeekAndMonth(b.fileName);
 
-      if (monthA !== monthB) return monthA - monthB;
-      return weekA - weekB;
+      const timeA = formatDate.toEpochTime(fromA);
+      const timeB = formatDate.toEpochTime(fromB);
+
+      return timeB - timeA;
     });
   }
 );
