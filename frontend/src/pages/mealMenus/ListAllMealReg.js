@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
 
-// import dayjs from "@utils/dateTime/dayjsConfig";
 import { formatDate } from "@utils/dateTime/formatDate";
+import { exportTableToExcel } from "@utils/exportFile/exportExcel";
 
 import mealRegConstants from "@store/constants/mealRegConstants";
 import mealRegSelectors from "@store/selectors/mealRegSelectors";
@@ -16,9 +16,9 @@ const columns = [
     dataIndex: "index",
     title: "STT",
     width: "5%",
-    sticky: "col",
+    sticky: "col", // <- sticky cột đầu
     align: "center",
-  }, // <- sticky cột đầu
+  },
   { key: "REG_DATE", dataIndex: "REG_DATE", title: "Ngày tháng", width: "15%" },
   { key: "EMP_ID", dataIndex: "EMP_ID", title: "Mã nhân viên", width: "15%" },
   {
@@ -55,55 +55,49 @@ function ListAllMealReg() {
     });
   }, [dispatch, selectedDate]);
 
+  const tableData = useMemo(() => {
+    const base = allMealReg || [];
+    return base.map((item, idx) => ({ ...item, index: idx + 1 }));
+  }, [allMealReg]);
+
   return (
     <div>
-      <div style={{ maxWidth: "200vh" }}>
-        <DatePicker
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-        />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "20px",
+        }}
+      >
+        <div style={{ maxWidth: "200vh" }}>
+          <DatePicker
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
+        </div>
+        {allMealReg.length > 0 && (
+          <div>
+            <button
+              onClick={() =>
+                exportTableToExcel({
+                  data: tableData,
+                  columns,
+                  filename: `MealReg_${formatDate.toLocalDateStr(
+                    selectedDate
+                  )}.xlsx`,
+                  columnWidths: [6, 18, 18, 30, 18, 30],
+                })
+              }
+              style={{ cursor: "pointer" }}
+            >
+              Export
+            </button>
+          </div>
+        )}
       </div>
       <div style={{ marginTop: "20px", maxWidth: "500px" }}>
-        <StyledTable
-          columns={columns}
-          data={[
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-            ...allMealReg,
-          ]}
-        />
+        <StyledTable columns={columns} data={tableData} />
       </div>
     </div>
   );
