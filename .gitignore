@@ -23,7 +23,7 @@ __pycache__/
 # OS
 .DS_Store
 
-#db
-db/
-*.sqlite
-*.db
+# #db
+# db/
+# *.sqlite
+# *.db
